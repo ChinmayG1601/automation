@@ -1,0 +1,20 @@
+# Install and load the required packages
+install.packages("googlesheets4")
+install.packages("readr")
+library(googlesheets4)
+library(readr)
+
+# Authenticate with Google
+gs4_auth()
+
+# Define the Google Sheet URL or ID
+sheet_url <- "https://docs.google.com/spreadsheets/d/your-sheet-id/edit"
+
+# Read the data from the sheet
+sheet_data <- read_sheet(sheet_url)
+
+# Save the data to a CSV file
+write_csv(sheet_data, "google_sheet_data.csv")
+
+# Print message to confirm
+cat("Data has been downloaded as 'google_sheet_data.csv'.\n")

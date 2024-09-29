@@ -1,0 +1,32 @@
+function extractEmails() {
+  var subjectQuery = "Freshers Job"; // Replace with your desired subject line
+  var threads = GmailApp.search(subjectQuery);
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var row = sheet.getLastRow() + 1; // Start from the next empty row
+
+  threads.forEach(function(thread) {
+    var messages = thread.getMessages();
+    
+    messages.forEach(function(message) {
+      var sender = message.getFrom();
+      var subject = message.getSubject();
+      var date = message.getDate();
+      // var time = message.getTimeZone();
+      var body = message.getBody();
+
+      // Use regex to extract URL from the email body
+      var urlRegex = /(https?:\/\/[^\s]+)/g;
+      var urls = body.match(urlRegex);
+      var url = urls ? urls.join(", ") : "No URL found";
+
+      // Log data into Google Sheets
+      sheet.getRange(row, 1).setValue(sender);   // Column A: Sender
+      sheet.getRange(row, 2).setValue(subject);  // Column B: Subject
+      sheet.getRange(row, 3).setValue(Utilities.formatDate(date, Session.getScriptTimeZone(), "yyyy-MM-dd")); // Column C: Date
+      sheet.getRange(row, 4).setValue(Utilities.formatDate(date, Session.getScriptTimeZone(), "HH:mm:ss")); // Column D: time
+      sheet.getRange(row, 5).setValue(url);      // Column E: Extracted URL
+
+      row++; // Move to the next row for each message
+    });
+  });
+}
