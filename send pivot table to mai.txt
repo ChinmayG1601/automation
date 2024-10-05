@@ -1,0 +1,60 @@
+function sendPivotTablesByEmail() {
+  // Spreadsheet and Sheet references
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Summary'); // The sheet where pivot tables are located
+  
+  // Define the email recipients
+  var recipients = ["golegaonkarchinmay1629@gmail.com", "shon.ai.2913@gmail.com"]; // Add more emails as needed
+  var subject = "Pivot Tables from Summary Sheet";
+  
+  // Get all pivot tables in the 'Summary' sheet
+  var pivotTables = sheet.getPivotTables();
+  
+  if (pivotTables.length === 0) {
+    Logger.log("No pivot tables found on the sheet.");
+    return;
+  }
+
+  // Start building the email body as an HTML table
+  var emailBody = "<p>Dear all,</p>";
+  emailBody += "<p>Here are the pivot tables from the 'Summary' sheet:</p>";
+  
+  pivotTables.forEach(function(pivotTable, index) {
+    emailBody += "<h3>Pivot Table " + (index + 1) + "</h3>";
+    
+    // Get the anchor cell of the pivot table
+    var anchorCell = pivotTable.getAnchorCell();
+    
+    // Find the full range of the pivot table
+    var range = anchorCell.getDataRegion(); // Gets the full data region around the pivot table
+    
+    // Convert the pivot table range to an HTML table
+    emailBody += rangeToHtmlTable(range);
+  });
+  
+  emailBody += "<p>Best regards,<br>Your Script</p>";
+
+  // Send the email
+  MailApp.sendEmail({
+    to: recipients.join(","),
+    subject: subject,
+    htmlBody: emailBody
+  });
+}
+
+// Helper function to convert a range of values into an HTML table
+function rangeToHtmlTable(range) {
+  var data = range.getValues();
+  var html = '<table border="1" cellpadding="5" cellspacing="0">';
+  
+  data.forEach(function(row) {
+    html += "<tr>";
+    row.forEach(function(cell) {
+      html += "<td>" + cell + "</td>";
+    });
+    html += "</tr>";
+  });
+  
+  html += "</table>";
+  return html;
+}
