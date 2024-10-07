@@ -1,0 +1,53 @@
+function sendEmailWithTables() {
+  // Get the active spreadsheet and the summary sheet
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Summary");
+  
+  // Define the ranges for the three tables
+  var range1 = sheet.getRange("A1:C" + sheet.getLastRow()); // Adjust row range based on data size
+  var range2 = sheet.getRange("F1:H" + sheet.getLastRow());
+  var range3 = sheet.getRange("K1:M" + sheet.getLastRow());
+
+  // Get the data for the three tables
+  var data1 = range1.getValues();
+  var data2 = range2.getValues();
+  var data3 = range3.getValues();
+
+  // Convert the data into HTML tables
+  var htmlTable1 = convertToHtmlTable(data1, "Status");
+  var htmlTable2 = convertToHtmlTable(data2, "reserved");
+  var htmlTable3 = convertToHtmlTable(data3, "Dispatched");
+
+  // Combine the three tables in one email body
+  var emailBody = "<p>Here are the tables from the summary sheet:</p><br>" + htmlTable1 + "<br><br>" + htmlTable2 + "<br><br>" + htmlTable3;
+
+  // Send the email
+  MailApp.sendEmail({
+    to: "golegaonkarchinmay1629@gmail.com", // Replace with the recipient's email
+    subject: "Summary Data from Google Sheets",
+    htmlBody: emailBody
+  });
+  
+  Logger.log("Email sent successfully");
+}
+
+// Function to convert a 2D array to an HTML table with optional title
+function convertToHtmlTable(data, title) {
+  var html = "<h3>" + title + "</h3>";
+  html += "<table border='1' style='border-collapse: collapse; text-align: center;'>";
+  
+  // Loop through the data and build the table rows and cells
+  for (var i = 0; i < data.length; i++) {
+    html += "<tr>";
+    for (var j = 0; j < data[i].length; j++) {
+      // Use <th> for the first row (headers) and <td> for the rest
+      if (i === 0) {
+        html += "<th style='padding: 8px;text-align: left;'>" + data[i][j] + "</th>";
+      } else {
+        html += "<td style='padding: 8px;'>" + data[i][j] + "</td>";
+      }
+    }
+    html += "</tr>";
+  }
+  html += "</table>";
+  return html;
+}
